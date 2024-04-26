@@ -38,16 +38,15 @@ local function search_inline(inputString)
     local patterns = {
         {str = '\\%(%s*(.*)%s*\\%)', length_start = 2},
         {str = '\\%[%s*(.*)%s*\\%]', length_start = 2},
-        {str = '$%s*(.*)%s*$', length_start = 1},
+        {str = '$%s*(.*)%s*$',       length_start = 1},
         {str = '\\%(%s*(.*)%s*\\%)', length_start = 2},
-        {str = '\\%( (.*) \\%)', length_start = 2},
+        {str = '\\%( (.*) \\%)',     length_start = 2},
     }
     local matches = {}
     for _, pattern in ipairs(patterns) do
         for match in string.gmatch(inputString, pattern.str) do
-            print(match)
             local start_index, end_index = string.find(inputString, pattern.str)
-            local result = string.sub(inputString, start_index + 2, end_index - 2)
+            local result = string.sub(inputString, start_index + pattern.length_start, end_index - pattern.length_start)
             matches[#matches + 1] = string.gsub(result, "\\", "\\\\")
         end
     end
