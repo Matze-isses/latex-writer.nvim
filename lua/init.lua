@@ -1,6 +1,13 @@
 local utf8 = require('utf8')
----
+
 --- \( \sum_{i=1}^{n} i \)
+---
+---
+--- \( \sum_{i=1}^{n}i \)
+---
+---
+---
+--- $\int_{r\in{R}}^{\infty}{x}\text{d}{x}$
 
 M = { }
 M.__index = M
@@ -29,16 +36,20 @@ end
 ---@return table
 local function search_inline(inputString)
     local patterns = {
-        {open = "\\%(", close = "\\%)"},
-        {open = "\\%[", close = "\\%]"},
-        {open = "\\%$", close = "\\%$"},
-        {open = "\\%$%$", close = "\\%$%$"}
+        {str = '\\%(%s*(.*)%s*\\%)', length_start = 2},
+        {str = '\\%[%s*(.*)%s*\\%]', length_start = 2},
+        {str = '$%s*(.*)%s*$', length_start = 1},
+        {str = '\\%(%s*(.*)%s*\\%)', length_start = 2},
+        {str = '\\%( (.*) \\%)', length_start = 2},
     }
     local matches = {}
-    for match in string.gmatch(inputString, '\\%( (.*) \\%)') do
-        local start_index, end_index = string.find(inputString, '\\%( (.*) \\%)')
-        local result = string.sub(inputString, start_index + 2, end_index - 2)
-        table.insert(matches, result)
+    for _, pattern in ipairs(patterns) do
+        for match in string.gmatch(inputString, pattern.str) do
+            print(match)
+            local start_index, end_index = string.find(inputString, pattern.str)
+            local result = string.sub(inputString, start_index + 2, end_index - 2)
+            matches[#matches + 1] = string.gsub(result, "\\", "\\\\")
+        end
     end
     return matches
 end
@@ -50,7 +61,6 @@ M = {
     },
 
     print_text = function(text_object)
-        --vim.api.nvim_buf_clear_namespace(0, -1, 0, -1)
         local name_space = vim.api.nvim_create_namespace('tex_namespace')
 
         if type(text_object.text) == "string" then
@@ -65,9 +75,9 @@ M = {
                 virt_text = {{text, 'Warning'}},
             }
             printed_string = printed_string .. text .. "  |  "
-            vim.api.nvim_buf_set_extmark(0, name_space, text_object.row + i - 1, 0, virtual_text_opts)
+            vim.api.nvim_buf_set_extmark(0, name_space, text_object.row + i - 2, 0, virtual_text_opts)
         end
-        print("PRINTED STRING", printed_string)
+        --print("PRINTED STRING", printed_string)
     end,
 
     get_items = function()
@@ -77,7 +87,7 @@ M = {
             local matches = search_inline(line)
             if #matches > 0 then
                 for _, match in ipairs(matches) do
-                    match = string.gsub(match, "\\", "\\\\")
+                    match = match
                     table.insert(items, {text = match, row = i-1, col = 1})
                 end
             end
@@ -87,6 +97,7 @@ M = {
 
     update = function ()
         local items = M.get_items()
+        vim.api.nvim_buf_clear_namespace(0, -1, 0, -1)
         for _, item in ipairs(items) do
             local updated = item
             updated.text = vim.api.nvim_call_function('GetLatex', {item.text})
@@ -94,9 +105,8 @@ M = {
         end
     end
 }
---- \( \sum_{i=1}^{n} \)
-
---- \( \sum_{i=1}^{n} i \)
+--- \( \sum_{i=1}^{n} test\)
+--- \( \sum_{i=1}^{n} ip \)
 --print("NUMBER OBTAINED ITEMS", #M.get_items())
 local overall = ''
 for _, item in ipairs(M.get_items()) do
