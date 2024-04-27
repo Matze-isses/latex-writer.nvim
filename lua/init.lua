@@ -1,9 +1,8 @@
 local utf8 = require('utf8')
+local get_latex_codes = require('inline_latex.lua.get_text')
 
---- \( \sum_{i=1}^{n} i \)
----
----
---- \( \sum_{i=1}^{n}i \)
+--- \(\sum_{i=1}^{n} i\)
+--- \[\sum_{i=1}^{n}\bar i_h^t\]
 ---
 ---
 ---
@@ -31,88 +30,49 @@ local function split_str(inputstr, sep)
     return t
 end
 
----comment
----@param inputString string
----@return table
-local function search_inline(inputString)
-    local patterns = {
-        {str = '\\%(%s*(.*)%s*\\%)', length_start = 2},
-        {str = '\\%[%s*(.*)%s*\\%]', length_start = 2},
-        {str = '$%s*(.*)%s*$',       length_start = 1},
-        {str = '\\%(%s*(.*)%s*\\%)', length_start = 2},
-        {str = '\\%( (.*) \\%)',     length_start = 2},
-    }
-    local matches = {}
-    for _, pattern in ipairs(patterns) do
-        for match in string.gmatch(inputString, pattern.str) do
-            local start_index, end_index = string.find(inputString, pattern.str)
-            local result = string.sub(inputString, start_index + pattern.length_start, end_index - pattern.length_start)
-            matches[#matches + 1] = string.gsub(result, "\\", "\\\\")
-        end
-    end
-    return matches
-end
-
 M = {
 
     defaults = {
         start_col = 130,
     },
 
-    print_text = function(text_object)
+    print_text = function(items)
         local name_space = vim.api.nvim_create_namespace('tex_namespace')
 
-        if type(text_object.text) == "string" then
-            --text_object.text = {text_object.text}
-            text_object.text = split_str(text_object.text, '\n')
-        end
-        local printed_string = ''
-        for i, text in ipairs(text_object.text) do
-            local virtual_text_opts = {
-                virt_text_pos = 'inline',
-                virt_text_win_col = 100,
-                virt_text = {{text, 'Warning'}},
-            }
-            printed_string = printed_string .. text .. "  |  "
-            vim.api.nvim_buf_set_extmark(0, name_space, text_object.row + i - 2, 0, virtual_text_opts)
-        end
-        --print("PRINTED STRING", printed_string)
-    end,
+        for _, text_object in ipairs(items) do
+            local virt_text_lines = {}
 
-    get_items = function()
-        local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-        local items = {}
-        for i, line in ipairs(lines) do
-            local matches = search_inline(line)
-            if #matches > 0 then
-                for _, match in ipairs(matches) do
-                    match = match
-                    table.insert(items, {text = match, row = i-1, col = 1})
-                end
+            for line in string.gmatch(text_object.text, "([^\n]+)\n") do
+                table.insert(virt_text_lines, {{string.rep(' ', 8) .. line, 'Comment'}})
             end
+            print("TEXT OBJECT", #virt_text_lines, text_object.row, text_object.col)
+
+            local virtual_text_opts = {
+                virt_lines = virt_text_lines,
+                virt_lines_above = false,  -- Set to true to display above the line_number
+                virt_lines_leftcol = true -- Set to true to align with the leftmost column
+            }
+            vim.api.nvim_buf_set_extmark(0, name_space, text_object.row, 0, virtual_text_opts)
         end
-        return items
     end,
 
     update = function ()
-        local items = M.get_items()
+        local items = get_latex_codes()
         vim.api.nvim_buf_clear_namespace(0, -1, 0, -1)
-        for _, item in ipairs(items) do
+
+        for i, item in ipairs(items) do
             local updated = item
             updated.text = vim.api.nvim_call_function('GetLatex', {item.text})
-            M.print_text(updated)
+            items[i] = updated
         end
+        M.print_text(items)
     end
 }
 --- \( \sum_{i=1}^{n} test\)
---- \( \sum_{i=1}^{n} ip \)
+--- \( \sum_{i=1}^{n}{ip} \)
 --print("NUMBER OBTAINED ITEMS", #M.get_items())
-local overall = ''
-for _, item in ipairs(M.get_items()) do
-    overall = overall .. item.text .. '\n ---------------- \n'
-end
 
-local result = vim.api.nvim_call_function('GetLatex', {[[\int_{-\infty}^{\infty} e^{-x^2} dx]]})
+--local result = vim.api.nvim_call_function('GetLatex', {[[\int_{-\infty}^{\infty} e^{-x^2} dx]]})
 --print(result == nil or result == '')
 --print("RESULT", result:sub(1, #result - 15))
 M.update()

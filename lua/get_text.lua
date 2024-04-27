@@ -7,6 +7,16 @@ local tex_regex = {
 }
 
 
+local function text_cleanup(text)
+    text = string.gsub(text, "(%a*%s+)(%a+)", "%1{%2}")
+    text = string.gsub(text, "\\", "\\\\")
+    text = string.gsub(text, " ", "")
+    return text
+end
+
+-- print(text_cleanup("hello \\textbf{world}"), text_cleanup("\\int_{i = 1} h \\text{dx}"), text_cleanup("\\int_{i = 1}^{n} \\mathbb R"))
+
+
 ---Searches per line for latex elements
 ---@param inputString string
 ---@return table
@@ -23,7 +33,7 @@ local function search_inline(inputString)
             -- start at last end index or 1 with the search and Escape backslashes to prevent errors
             start_index, end_index = string.find(inputString, pattern.regex, end_index or 1)
             local result = string.sub(inputString, start_index + pattern.length_start, end_index - pattern.length_start)
-            matches[#matches + 1] = string.gsub(result, "\\", "\\\\")
+            matches[#matches + 1] = {tex = text_cleanup(result), index = start_index}
         end
     end
     return matches
@@ -32,17 +42,18 @@ end
 
 
 return function()
-        local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-        local items = {}
+    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+    local items = {}
 
-        for i, line in ipairs(lines) do
-            local matches = search_inline(line)
-            if #matches > 0 then
-                for _, match in ipairs(matches) do
-                    items[#items+1] = {text = match, row = i-1, col = 1}
-                end
+    for i, line in ipairs(lines) do
+        local matches = search_inline(line)
+
+        if #matches > 0 then
+            for _, match in ipairs(matches) do
+                items[#items+1] = {text = match.tex, row = i-1, col = match.index}
             end
         end
-        return items
+    end
+    return items
 end
 
