@@ -1,5 +1,6 @@
 local utf8 = require('utf8')
 local get_latex_codes = require('inline_latex.lua.get_text')
+local display_virtual_text = require('inline_latex.lua.virt_text')
 
 --- \(\sum_{i=1}^{n} i\)
 --- \[\sum_{i=1}^{n}\bar i_h^t\]
@@ -8,74 +9,49 @@ local get_latex_codes = require('inline_latex.lua.get_text')
 ---
 --- $\int_{r\in{R}}^{\infty}{x}\text{d}{x}$
 
-M = { }
-M.__index = M
+LatexWriter = { }
+LatexWriter.__index = LatexWriter
 
 local function script_path()
     local str = debug.getinfo(2, "S").source:sub(2)
     return str:match("(.*[/\\])") or "./"
 end
 
-local path = script_path()
-path = path .. "tex2utf.pl"
-
-local function split_str(inputstr, sep)
-    if sep == nil then
-        sep = "%s"
-    end
-    local t = {}
-    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-        table.insert(t, str)
-    end
-    return t
-end
-
-M = {
-
-    defaults = {
-        start_col = 130,
-    },
-
-    print_text = function(items)
-        local name_space = vim.api.nvim_create_namespace('tex_namespace')
-
-        for _, text_object in ipairs(items) do
-            local virt_text_lines = {}
-
-            for line in string.gmatch(text_object.text, "([^\n]+)\n") do
-                table.insert(virt_text_lines, {{string.rep(' ', 8) .. line, 'Comment'}})
-            end
-            print("TEXT OBJECT", #virt_text_lines, text_object.row, text_object.col)
-
-            local virtual_text_opts = {
-                virt_lines = virt_text_lines,
-                virt_lines_above = false,  -- Set to true to display above the line_number
-                virt_lines_leftcol = true -- Set to true to align with the leftmost column
-            }
-            vim.api.nvim_buf_set_extmark(0, name_space, text_object.row, 0, virtual_text_opts)
-        end
-    end,
+LatexWriter = {
 
     update = function ()
         local items = get_latex_codes()
         vim.api.nvim_buf_clear_namespace(0, -1, 0, -1)
+        display_virtual_text(items)
+    end,
 
-        for i, item in ipairs(items) do
-            local updated = item
-            updated.text = vim.api.nvim_call_function('GetLatex', {item.text})
-            items[i] = updated
+    remove = function ()
+        vim.api.nvim_buf_clear_namespace(0, -1, 0, -1)
+    end,
+
+    _set_user_cmds = function ()
+        vim.api.nvim_create_user_command('LatexWriterUpdate', function () LatexWriter.update() end, { nargs = 0 })
+        vim.api.nvim_create_user_command('LatexWriterUnload', function () LatexWriter.remove() end, { nargs = 0 })
+        vim.api.nvim_create_user_command('LatexWriterAuto', function () LatexWriter._set_auto_cmds() end, { nargs = 0 })
+    end,
+
+    _set_auto_cmds = function ()
+        local grp = vim.api.nvim_create_augroup("LatexWriter", { clear = true })
+        vim.api.nvim_create_autocmd({"CursorHold"}, {
+            callback = function () LatexWriter.update() end,
+        })
+    end,
+
+    setup = function (opts)
+        opts = opts or {}
+        if not opts.disable_commands then
+            LatexWriter._set_user_cmds()
         end
-        M.print_text(items)
-    end
+        return opts
+    end,
 }
 --- \( \sum_{i=1}^{n} test\)
---- \( \sum_{i=1}^{n}{ip} \)
---print("NUMBER OBTAINED ITEMS", #M.get_items())
-
---local result = vim.api.nvim_call_function('GetLatex', {[[\int_{-\infty}^{\infty} e^{-x^2} dx]]})
---print(result == nil or result == '')
---print("RESULT", result:sub(1, #result - 15))
-M.update()
-
-function M.setup() end
-function M.init(opts) end
+--- \(\sum_{i=1}^{n}{ip}\)
+LatexWriter.update()
+LatexWriter.setup()
+return LatexWriter
