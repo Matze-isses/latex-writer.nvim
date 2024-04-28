@@ -39,12 +39,12 @@ LatexWriter = {
 LatexWriter.__index = LatexWriter
 
 function LatexWriter.setup(config)
-    local config = require('latex-writer.config'):set(config):get()
+    local cfg = require('latex-writer.config'):set(config):get()
 
-    if LatexWriter.settings.autocmds == true then LatexWriter._set_auto_cmds() end
-    if LatexWriter.settings.user == true then LatexWriter._set_user_cmds() end
+    if cfg.autocmds == true then LatexWriter._set_auto_cmds() end
+    if cfg.user == true then LatexWriter._set_user_cmds() end
 
-    return self
+    return cfg
 end
 
 -- LatexWriter.setup()
