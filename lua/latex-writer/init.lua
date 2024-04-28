@@ -1,13 +1,6 @@
 local get_latex_codes = require('latex-writer.get_text')
 local display_virtual_text = require('latex-writer.virt_text')
 
---- \(\sum_{i=1}^{n} i\)
---- \[\sum_{i=1}^{n}\bar i_h^t\]
----
----
----
---- $\int_{r\in{R}}^{\infty}{x}\text{d}{x}$
-
 LatexWriter = { }
 LatexWriter.__index = LatexWriter
 
@@ -30,8 +23,9 @@ LatexWriter = {
     end,
 
     settings = {
-        autocmds = true,
+        autocmds = false,
         usercmds = true,
+        file_types = {'tex'},
         plugin_path = get_plugin_path(),
         highlighting = {
             text = 'Todo',
@@ -65,7 +59,6 @@ LatexWriter = {
     init = function (opts)
     end
 }
---- \( \sum_{i=1}^{n} test\)
---- \(\sum_{i=1}^{n}{ip}\)
-LatexWriter.setup({autocmds = true})
+LatexWriter.__index = LatexWriter
+
 return LatexWriter
