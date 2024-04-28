@@ -21,9 +21,6 @@ LatexWriter = {
     end,
 
     _set_user_cmds = function ()
-        vim.api.nvim_create_user_command('LatexWriterUpdate', function () LatexWriter.update() end, { nargs = 0 })
-        vim.api.nvim_create_user_command('LatexWriterUnload', function () LatexWriter.remove() end, { nargs = 0 })
-        vim.api.nvim_create_user_command('LatexWriterAuto', function () LatexWriter._set_auto_cmds() end, { nargs = 0 })
     end,
 
     _set_auto_cmds = function ()
@@ -36,16 +33,15 @@ LatexWriter = {
     init = function (opts)
     end
 }
-LatexWriter.__index = LatexWriter
 
 function LatexWriter.setup(config)
     local cfg = require('latex-writer.config'):set(config):get()
 
     if cfg.autocmds == true then LatexWriter._set_auto_cmds() end
-    if cfg.user == true then LatexWriter._set_user_cmds() end
+    if cfg.usercmds == true then LatexWriter._set_user_cmds() end
 
     return cfg
 end
 
--- LatexWriter.setup()
+--LatexWriter.setup()
 return LatexWriter
