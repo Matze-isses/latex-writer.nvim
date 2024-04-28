@@ -55,11 +55,9 @@ function LatexWriter.setup(opts)
     if self.config.autocmds == true then self._set_auto_cmds() end
     if self.config.usercmds == true then self._set_user_cmds() end
 
-    self.parser_path = LatexWriter.plugin_path .. '/src/input_parser.sh'
+    self.plugin_path = vim.fn.expand('%:h:h:h')
+    self.parser_path = vim.fn.expand('%:h:h:h') .. '/src/input_parser.sh'
     return self
 end
-
-LatexWriter = LatexWriter.setup()
-LatexWriter.update()
 
 return LatexWriter
