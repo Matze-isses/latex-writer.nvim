@@ -1,6 +1,5 @@
 local get_latex_codes = require('latex-writer.get_text')
 local display_virtual_text = require('latex-writer.virt_text')
-local config_creator = require('latex-writer.config')
 
 LatexWriter = { }
 LatexWriter.__index = LatexWriter
@@ -11,7 +10,16 @@ end
 
 LatexWriter = {
     plugin_path = get_plugin_path(),
-    settings = {},
+
+    config = {
+        autocmds = false,
+        usercmds = true,
+        file_types = {'tex'},
+        highlighting = {
+            text = 'Todo',
+            background = ''
+        }
+    },
 
     update = function ()
         local items = get_latex_codes()
@@ -24,6 +32,8 @@ LatexWriter = {
     end,
 
     _set_user_cmds = function ()
+        vim.api.nvim_create_user_command('LatexWriterStart', function () LatexWriter.update() end, {nargs = 0})
+        vim.api.nvim_create_user_command('LatexWriterRemove', function () LatexWriter.remove() end, {nargs = 0})
     end,
 
     _set_auto_cmds = function ()
@@ -37,15 +47,14 @@ LatexWriter = {
     end
 }
 
-function LatexWriter.setup(config)
-    local cfg = config_creator:set(config):get()
-    LatexWriter.settings = cfg
+function LatexWriter.setup(opts)
+    local self = setmetatable(LatexWriter, {config = opts})
 
-    if cfg.autocmds == true then LatexWriter._set_auto_cmds() end
-    if cfg.usercmds == true then LatexWriter._set_user_cmds() end
+    if self.config.autocmds == true then self._set_auto_cmds() end
+    if self.config.usercmds == true then self._set_user_cmds() end
 
     return LatexWriter
 end
 
-LatexWriter.setup()
+--LatexWriter.setup()
 return LatexWriter

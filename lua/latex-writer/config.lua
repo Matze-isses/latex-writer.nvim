@@ -11,8 +11,6 @@ local Config = {
     },
 }
 
----@package
----Updates the default config
 function Config:set(cfg)
     if cfg then
         self.config = vim.tbl_deep_extend('force', self.config, cfg)
