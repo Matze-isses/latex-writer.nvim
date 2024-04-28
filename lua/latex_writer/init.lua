@@ -1,4 +1,4 @@
-local get_latex_codes = require('inline_latex.lua.get_text')
+local get_latex_codes = require('inline_latex.get_text')
 local display_virtual_text = require('inline_latex.lua.virt_text')
 
 --- \(\sum_{i=1}^{n} i\)
@@ -10,6 +10,10 @@ local display_virtual_text = require('inline_latex.lua.virt_text')
 
 LatexWriter = { }
 LatexWriter.__index = LatexWriter
+
+local function get_plugin_path()
+    return vim.g.latex_writer_plugin_path
+end
 
 LatexWriter = {
 
@@ -28,7 +32,7 @@ LatexWriter = {
     settings = {
         autocmds = true,
         usercmds = true,
-        plugin_path = vim.g.runtimepath,
+        plugin_path = get_plugin_path(),
         highlighting = {
             text = 'Todo',
             background = ''
