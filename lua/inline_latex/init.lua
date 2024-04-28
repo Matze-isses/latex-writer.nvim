@@ -19,6 +19,14 @@ end
 
 LatexWriter = {
 
+    settings = {
+        autocmds = true,
+        highlighting = {
+            text = 'Todo',
+            background = ''
+        }
+    },
+
     update = function ()
         local items = get_latex_codes()
         vim.api.nvim_buf_clear_namespace(0, -1, 0, -1)
@@ -49,6 +57,9 @@ LatexWriter = {
         end
         return opts
     end,
+
+    init = function (opts)
+    end
 }
 --- \( \sum_{i=1}^{n} test\)
 --- \(\sum_{i=1}^{n}{ip}\)
