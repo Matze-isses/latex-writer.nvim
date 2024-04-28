@@ -1,5 +1,5 @@
-local get_latex_codes = require('inline_latex.get_text')
-local display_virtual_text = require('inline_latex.lua.virt_text')
+local get_latex_codes = require('latex-writer.get_text')
+local display_virtual_text = require('latex-writer.virt_text')
 
 --- \(\sum_{i=1}^{n} i\)
 --- \[\sum_{i=1}^{n}\bar i_h^t\]
