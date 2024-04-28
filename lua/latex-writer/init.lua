@@ -9,30 +9,7 @@ local function get_plugin_path()
 end
 
 LatexWriter = {
-
-    setup = function (opts)
-        opts = opts or {}
-        for name, value in pairs(opts) do
-            if LatexWriter.settings[name] then LatexWriter.settings[name] = value end
-        end
-
-        if LatexWriter.settings.autocmds == true then LatexWriter._set_auto_cmds() end
-        if LatexWriter.settings.user == true then LatexWriter._set_user_cmds() end
-
-        return opts
-    end,
-
-    settings = {
-        autocmds = false,
-        usercmds = true,
-        file_types = {'tex'},
-        plugin_path = get_plugin_path(),
-        highlighting = {
-            text = 'Todo',
-            background = ''
-        }
-    },
-
+    plugin_path = get_plugin_path(),
     update = function ()
         local items = get_latex_codes()
         vim.api.nvim_buf_clear_namespace(0, -1, 0, -1)
@@ -61,4 +38,14 @@ LatexWriter = {
 }
 LatexWriter.__index = LatexWriter
 
+function LatexWriter.setup(config)
+    local cfg = require('latex-writer.config'):set(config):get()
+
+    if cfg.autocmds == true then LatexWriter._set_auto_cmds() end
+    if cfg.user == true then LatexWriter._set_user_cmds() end
+
+    return cfg
+end
+
+-- LatexWriter.setup()
 return LatexWriter
