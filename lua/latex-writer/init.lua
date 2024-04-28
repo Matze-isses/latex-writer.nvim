@@ -1,5 +1,6 @@
 local get_latex_codes = require('latex-writer.get_text')
 local display_virtual_text = require('latex-writer.virt_text')
+local config_creator = require('latex-writer.config')
 
 LatexWriter = { }
 LatexWriter.__index = LatexWriter
@@ -10,6 +11,8 @@ end
 
 LatexWriter = {
     plugin_path = get_plugin_path(),
+    settings = {},
+
     update = function ()
         local items = get_latex_codes()
         vim.api.nvim_buf_clear_namespace(0, -1, 0, -1)
@@ -35,13 +38,14 @@ LatexWriter = {
 }
 
 function LatexWriter.setup(config)
-    local cfg = require('latex-writer.config'):set(config):get()
+    local cfg = config_creator:set(config):get()
+    LatexWriter.settings = cfg
 
     if cfg.autocmds == true then LatexWriter._set_auto_cmds() end
     if cfg.usercmds == true then LatexWriter._set_user_cmds() end
 
-    return cfg
+    return LatexWriter
 end
 
---LatexWriter.setup()
+LatexWriter.setup()
 return LatexWriter
