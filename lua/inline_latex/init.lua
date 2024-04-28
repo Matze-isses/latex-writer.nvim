@@ -1,4 +1,3 @@
-local utf8 = require('utf8')
 local get_latex_codes = require('inline_latex.lua.get_text')
 local display_virtual_text = require('inline_latex.lua.virt_text')
 
@@ -12,15 +11,24 @@ local display_virtual_text = require('inline_latex.lua.virt_text')
 LatexWriter = { }
 LatexWriter.__index = LatexWriter
 
-local function script_path()
-    local str = debug.getinfo(2, "S").source:sub(2)
-    return str:match("(.*[/\\])") or "./"
-end
-
 LatexWriter = {
+
+    setup = function (opts)
+        opts = opts or {}
+        for name, value in pairs(opts) do
+            if LatexWriter.settings[name] then LatexWriter.settings[name] = value end
+        end
+
+        if LatexWriter.settings.autocmds == true then LatexWriter._set_auto_cmds() end
+        if LatexWriter.settings.user == true then LatexWriter._set_user_cmds() end
+
+        return opts
+    end,
 
     settings = {
         autocmds = true,
+        usercmds = true,
+        plugin_path = vim.g.runtimepath,
         highlighting = {
             text = 'Todo',
             background = ''
@@ -50,19 +58,10 @@ LatexWriter = {
         })
     end,
 
-    setup = function (opts)
-        opts = opts or {}
-        if not opts.disable_commands then
-            LatexWriter._set_user_cmds()
-        end
-        return opts
-    end,
-
     init = function (opts)
     end
 }
 --- \( \sum_{i=1}^{n} test\)
 --- \(\sum_{i=1}^{n}{ip}\)
-LatexWriter.update()
-LatexWriter.setup()
+LatexWriter.setup({autocmds = true})
 return LatexWriter
