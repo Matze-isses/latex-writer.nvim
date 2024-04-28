@@ -8,6 +8,8 @@ local function get_plugin_path()
     return vim.g.latex_writer_plugin_path
 end
 
+--- \(\sum_{i=1}^{n} i\)
+
 LatexWriter = {
     plugin_path = get_plugin_path(),
     parser_path = nil, 
@@ -54,9 +56,10 @@ function LatexWriter.setup(opts)
     if self.config.usercmds == true then self._set_user_cmds() end
 
     self.parser_path = LatexWriter.plugin_path .. '/src/input_parser.sh'
-    print(self.parser_path)
     return self
 end
 
-LatexWriter.setup()
+LatexWriter = LatexWriter.setup()
+LatexWriter.update()
+
 return LatexWriter

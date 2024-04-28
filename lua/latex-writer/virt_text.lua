@@ -12,6 +12,7 @@ return function (items)
         if not vim.tbl_contains(used_texts, item.text) then
             used_texts[#used_texts + 1] = item.text
             ltex_rep[#used_texts] = item
+            print(item)
             ltex_rep[#used_texts].text = vim.api.nvim_call_function('GetLatex', {item.text})
         end
     end
