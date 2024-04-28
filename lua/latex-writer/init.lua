@@ -10,7 +10,7 @@ end
 
 LatexWriter = {
     plugin_path = get_plugin_path(),
-
+    parser_path = nil, 
     config = {
         autocmds = false,
         usercmds = true,
@@ -53,8 +53,10 @@ function LatexWriter.setup(opts)
     if self.config.autocmds == true then self._set_auto_cmds() end
     if self.config.usercmds == true then self._set_user_cmds() end
 
-    return LatexWriter
+    self.parser_path = LatexWriter.plugin_path .. '/src/input_parser.sh'
+    print(self.parser_path)
+    return self
 end
 
---LatexWriter.setup()
+LatexWriter.setup()
 return LatexWriter
