@@ -1,7 +1,7 @@
 
 
 return function (command)
-    local script_path = vim.fn.expand("<sfile>:p:h:h") .. "/../bin/input_parser.sh"
+    local script_path = vim.fn.expand("<sfile>:p:h:h") .. "/src/input_parser.sh"
 
     local handle = io.popen(script_path, 'r')
 
