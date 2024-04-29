@@ -1,5 +1,6 @@
 local get_latex_codes = require('latex-writer.get_text')
 local display_virtual_text = require('latex-writer.virt_text')
+local exec_shell = require('dev_latex.connect_shell')
 
 LatexWriter = { }
 LatexWriter.__index = LatexWriter
@@ -12,7 +13,8 @@ end
 
 LatexWriter = {
     plugin_path = get_plugin_path(),
-    parser_path = nil, 
+    parser_path = nil,
+
     config = {
         autocmds = false,
         usercmds = true,
@@ -57,7 +59,9 @@ function LatexWriter.setup(opts)
 
     self.plugin_path = vim.fn.expand('%:h:h:h')
     self.parser_path = vim.fn.expand('%:h:h:h') .. '/src/input_parser.sh'
+    exec_shell("(hello \\int)")
     return self
 end
 
+LatexWriter.setup({})
 return LatexWriter
