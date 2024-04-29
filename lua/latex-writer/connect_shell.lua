@@ -1,4 +1,11 @@
 
+vim.cmd([[
+if has('python')
+    python << EOF
+       print("python works")
+EOF
+endif
+]])
 
 return function (path, command)
     local handle = io.popen(path, 'r')
@@ -12,6 +19,7 @@ return function (path, command)
         if output == nil or output == '' then
             print("No output from script or error occurred.")
             print("Script path: " .. path)
+            print("Script CMD:" .. command)
         else
             print("Output from script: " .. output)
         end
