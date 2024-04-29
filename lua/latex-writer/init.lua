@@ -1,6 +1,6 @@
 local get_latex_codes = require('latex-writer.get_text')
 local display_virtual_text = require('latex-writer.virt_text')
-local exec_shell = require('dev_latex.connect_shell')
+local exec_shell = require('latex-writer.connect_shell')
 
 LatexWriter = { }
 LatexWriter.__index = LatexWriter
@@ -58,8 +58,8 @@ function LatexWriter.setup(opts)
     if self.config.usercmds == true then self._set_user_cmds() end
 
     self.plugin_path = vim.fn.expand('%:h:h:h')
-    self.parser_path = vim.fn.expand('%:h:h:h') .. '/src/input_parser.sh'
-    exec_shell("(hello \\int)")
+    self.parser_path = vim.fn.expand('%:h:h:h') .. '/src/tex2utf.pl'
+    exec_shell(self.parser_path, "(hello \\int)")
     return self
 end
 

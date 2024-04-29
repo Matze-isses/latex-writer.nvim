@@ -1,9 +1,9 @@
 
 
-return function (command)
-    local script_path = vim.fn.expand("<sfile>:p:h:h") .. "/src/input_parser.sh"
-
-    local handle = io.popen(script_path, 'r')
+return function (path, command)
+    local handle = io.popen(path, 'r')
+    command = 'perl ' .. path .. ' < <(echo "' .. command ..'")' .. vim.fn.shellescape(command)
+    print(command)
 
     if handle then
         local output = handle:read("*a")
@@ -11,7 +11,7 @@ return function (command)
 
         if output == nil or output == '' then
             print("No output from script or error occurred.")
-            print("Script path: " .. script_path)
+            print("Script path: " .. path)
         else
             print("Output from script: " .. output)
         end
