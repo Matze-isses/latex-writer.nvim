@@ -1,29 +1,21 @@
 
-vim.cmd([[
-if has('python')
-    python << EOF
-       print("python works")
-EOF
-endif
-]])
-
 return function (path, command)
-    local handle = io.popen(path, 'r')
-    command = 'perl ' .. path .. ' < <(echo "' .. command ..'")' .. vim.fn.shellescape(command)
-    print(command)
+    command = 'perl ' .. path .. ' < <(echo "' .. command ..'")'
 
-    if handle then
-        local output = handle:read("*a")
-        handle:close()
+    local output = vim.fn.system(command)
 
-        if output == nil or output == '' then
-            print("No output from script or error occurred.")
-            print("Script path: " .. path)
-            print("Script CMD:" .. command)
-        else
-            print("Output from script: " .. output)
-        end
+    if type(output) == "table" then 
+        for name, value in pairs(output) do print(name, value) end
     else
-        print("Failed to execute script.")
+        print(output)
     end
+
+    if output == nil or output == '' then
+        print("No output from script or error occurred.")
+        print("Script path: " .. path)
+        print("Script CMD:" .. command.output)
+    else
+        print("Output from script: " .. output)
+    end
+    return output
 end

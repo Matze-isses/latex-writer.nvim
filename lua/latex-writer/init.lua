@@ -27,6 +27,9 @@ LatexWriter = {
 
     update = function ()
         local items = get_latex_codes()
+        for i, item in ipairs(items) do 
+            items[i].text = exec_shell(LatexWriter.parser_path, item.text)
+        end
         vim.api.nvim_buf_clear_namespace(0, -1, 0, -1)
         display_virtual_text(items)
     end,
@@ -59,9 +62,11 @@ function LatexWriter.setup(opts)
 
     self.plugin_path = vim.fn.expand('%:h:h:h')
     self.parser_path = vim.fn.expand('%:h:h:h') .. '/src/tex2utf.pl'
-    exec_shell(self.parser_path, "(hello \\int)")
+    -- exec_shell(self.parser_path, "(hello \\int)")
     return self
 end
 
 LatexWriter.setup({})
+LatexWriter.update()
+
 return LatexWriter

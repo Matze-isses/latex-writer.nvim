@@ -6,21 +6,20 @@ return function (items)
     local virt_text_lines = {}
     local used_texts = {}  -- to avoid duplicates
     local ltex_rep = {}  -- to avoid duplicates
-
+    local text = ''
 
     for _, item in ipairs(items) do
         if not vim.tbl_contains(used_texts, item.text) then
             used_texts[#used_texts + 1] = item.text
             ltex_rep[#used_texts] = item
-            print(item)
-            ltex_rep[#used_texts].text = vim.api.nvim_call_function('GetLatex', {item.text})
         end
     end
 
 
     for _, ltex in ipairs(ltex_rep) do
+        text = ltex.text
         virt_text_lines = {}
-        local text = ltex.text
+
 
         for line in string.gmatch(text, "([^\n]+)\n") do
             table.insert(virt_text_lines, {{string.rep(' ', 8) .. line, 'Comment'}})
