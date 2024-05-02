@@ -1,0 +1,3 @@
+[submodule "src/tex2utf"]
+	path = src/tex2utf
+	url = git@github.com:Pomax/tex2utf.git
