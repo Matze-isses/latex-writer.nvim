@@ -1,28 +1,14 @@
 local get_latex_codes = require('latex-writer.get_text')
 local display_virtual_text = require('latex-writer.virt_text')
 local exec_shell = require('latex-writer.connect_shell')
-
 LatexWriter = { }
 LatexWriter.__index = LatexWriter
 
 local function get_plugin_path()
-    local appended_string = '/src/tex2utf.pl'
-    local plugin_path = vim.fn.expand('%:p:h')
-    local parser_path = plugin_path .. appended_string
-    local running_var = 0
+    local appended_string = '/src/tex2utf/tex2utf.pl'
+    local latex_writer_path = vim.fn.fnamemodify( vim.api.nvim_get_runtime_file("lua/latex-writer/init.lua", false)[1], ":p:h:h:h")
 
-    while plugin_path ~= '/' do
-	if running_var > 10 then break else running_var = running_var + 1 end
-        parser_path = plugin_path .. appended_string
-
-        -- checks if there is a matching file and if so breaks
-        if vim.fn.filereadable(parser_path) == 1 then break end
-
-        -- if no matching file then shorten plugin_path by one directory
-        plugin_path = vim.fn.fnamemodify(plugin_path, ':h')
-    end
-
-    return plugin_path, parser_path
+    return latex_writer_path, latex_writer_path .. appended_string
 end
 
 --- \(\sum_{i=1}^{n} i\)
@@ -34,11 +20,11 @@ LatexWriter = {
     config = {
         autocmds = false,
         usercmds = true,
-        apply_on_filetypes = {'tex', 'markdown'},
+        apply_on_filetypes = {'tex', 'markdown', 'lua'},
 
         highlighting = {
-            fg = 'NONE',
-            bg = '#082a2b',
+            fg = '#cde33b',
+            bg = '#0e1120',
             gui = 'NONE'
         },
 
@@ -60,7 +46,7 @@ LatexWriter = {
             items[i].text = exec_shell(LatexWriter.parser_path, item.text)
         end
         vim.api.nvim_buf_clear_namespace(0, -1, 0, -1)
-        display_virtual_text(items, LatexWriter.config.virt_text_params)
+        display_virtual_text(items, LatexWriter.config)
     end,
 
     remove = function ()
@@ -68,6 +54,7 @@ LatexWriter = {
     end,
 
     _set_user_cmds = function ()
+        vim.api.nvim_create_user_command('LatexWriterForce', function () LatexWriter.update() end, {nargs = 0})
         vim.api.nvim_create_user_command('LatexWriterStart', function () LatexWriter.verified_update() end, {nargs = 0})
         vim.api.nvim_create_user_command('LatexWriterRemove', function () LatexWriter.remove() end, {nargs = 0})
     end,
@@ -100,8 +87,8 @@ function LatexWriter.setup(opts)
     return self
 end
 
---local test = LatexWriter.setup({})
---print(test.parser_path)
--- test.update()
+local test = LatexWriter.setup({})
+--print(test.plugin_path, test.parser_path)
+
 
 return LatexWriter

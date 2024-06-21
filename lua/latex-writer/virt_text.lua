@@ -7,6 +7,7 @@ return function (items, config)
     local used_texts = {}  -- to avoid duplicates
     local ltex_rep = {}  -- to avoid duplicates
     local text = ''
+    local win_width = vim.api.nvim_win_get_width(vim.api.nvim_get_current_win())
 
     local text_before = config.virt_text_params.string_before
 
@@ -23,8 +24,8 @@ return function (items, config)
         virt_text_lines = {}
 
         for line in string.gmatch(text, "([^\n]+)\n") do
-
-            table.insert(virt_text_lines, {{text_before .. line, 'LatexWriter'}})
+            local text_after = string.rep(' ', win_width - #text_before - #line)
+            table.insert(virt_text_lines, {{text_before .. line .. text_after, 'LatexWriter'}})
         end
 
         local virtual_text_opts = {

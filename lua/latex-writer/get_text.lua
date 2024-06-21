@@ -4,8 +4,12 @@ local tex_regex = {
     {regex = '$%s*(.*)%s*$',       length_start = 1},
     {regex = '\\%(%s*(.*)%s*\\%)', length_start = 2},
     {regex = '\\%( (.*) \\%)',     length_start = 2},
+    {regex = '\\%[ ([%s%S]+?)(?:\\]) \\%]',     length_start = 2},
 }
 
+---\[
+--- \int
+---\]
 
 local function text_cleanup(text)
     text = string.gsub(text, "(%a*%s+)(%a+)", "%1{%2}")
@@ -14,7 +18,6 @@ local function text_cleanup(text)
     return text
 end
 
--- print(text_cleanup("hello \\textbf{world}"), text_cleanup("\\int_{i = 1} h \\text{dx}"), text_cleanup("\\int_{i = 1}^{n} \\mathbb R"))
 
 
 ---Searches per line for latex elements
@@ -41,19 +44,31 @@ end
 
 
 
-return function()
+local function search_in_buffer()
     local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
     local items = {}
+    local text = ""
 
-    for i, line in ipairs(lines) do
-        local matches = search_inline(line)
-
-        if #matches > 0 then
-            for _, match in ipairs(matches) do
-                items[#items+1] = {text = match.tex, row = i-1, col = match.index}
-            end
-        end
+    for _, line in ipairs(lines) do
+        text = text .. line
     end
+
+    local matches = search_inline(text)
+    local chars = 0
+
+    local running = 1
+    for index, line in ipairs(lines) do
+        chars = chars + #line
+        while matches[running] and matches[running].col and matches[running].col < chars do
+            local match = matches[running]
+            items[#items+1] = {text = match.tex, row = index-1, col = match.index}
+            running = running + 1
+        end
+
+    end
+
     return items
 end
 
+
+return search_in_buffer

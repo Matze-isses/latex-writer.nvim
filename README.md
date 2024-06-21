@@ -2,6 +2,11 @@
 
 Want to display latex code within a buffer? -> Use this plugin.
 
+\[
+\int_1
+\]
+
+\(\sum\)
 
 # Requirements
 
