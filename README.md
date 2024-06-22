@@ -3,10 +3,11 @@
 Want to display latex code within a buffer? -> Use this plugin.
 
 \[
-\int_1
+    \int_1^\infty \varepsilon dx
 \]
 
-\(\sum\)
+\(\sum_{k=1}^n X(\omega_k)\) Would be the probability measure of a discrete random variable \(X: \Omega \to \mathbb R\)
+
 
 # Requirements
 

@@ -1,6 +1,7 @@
 local get_latex_codes = require('latex-writer.get_text')
 local display_virtual_text = require('latex-writer.virt_text')
 local exec_shell = require('latex-writer.connect_shell')
+local greek_parse = require('latex-writer.parse_greek')
 LatexWriter = { }
 LatexWriter.__index = LatexWriter
 
@@ -18,6 +19,7 @@ LatexWriter = {
     parser_path = nil,
 
     config = {
+        debug = true,
         autocmds = false,
         usercmds = true,
         apply_on_filetypes = {'tex', 'markdown', 'lua'},
@@ -43,7 +45,7 @@ LatexWriter = {
     update = function ()
         local items = get_latex_codes()
         for i, item in ipairs(items) do
-            items[i].text = exec_shell(LatexWriter.parser_path, item.text)
+            items[i].text = exec_shell(LatexWriter.parser_path, greek_parse.parse_letters(item.text))
         end
         vim.api.nvim_buf_clear_namespace(0, -1, 0, -1)
         display_virtual_text(items, LatexWriter.config)

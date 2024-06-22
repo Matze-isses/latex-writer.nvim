@@ -1,6 +1,6 @@
 
 return function (path, command)
-    command = 'perl ' .. path .. ' < <(echo "' .. command ..'")'
+    command = 'perl ' .. path .. ' < <(echo \"' .. command ..'\")'
 
     local output = vim.fn.system(command)
 
