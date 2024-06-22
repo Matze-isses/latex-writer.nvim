@@ -90,9 +90,6 @@ local function convert_visual()
     add_lines_below_cursor(lines)
 end
 
---- \( \sum \)
-
-vim.api.nvim_buf_set_keymap(0, 'v', 't', "", {callback = function () convert_visual() end, expr=true})
 
 return {
     get_latex_text = function (text)
