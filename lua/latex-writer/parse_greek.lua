@@ -1,6 +1,16 @@
 
 
 local greek_map = {
+    Gamma      = "Γ",
+    Delta      = "Δ",
+    Theta      = "Θ",
+    Iota       = "ι",
+    Lambda     = "Λ",
+    Xi         = "Ξ",
+    Pi         = "Π",
+    Phi        = "Φ",
+    Psi        = "Ψ",
+    Omega      = "Ω",
     alpha      = "α",
     beta       = "β",
     gamma      = "ᵧ",
@@ -17,7 +27,7 @@ local greek_map = {
     nu         = "ν",
     xi         = "ξ",
     omicron    = "𝜪",
-    pi         = "ϕ",
+    pi         = "π",
     rho        = "ρ",
     sigma      = "σ",
     tau        = "τ",
@@ -31,7 +41,7 @@ local greek_map = {
 return {
     parse_letters = function (string)
         for letter, unicode in pairs(greek_map) do
-            local search_string = "\\" .. letter
+            local search_string = "\\\\" .. letter
             string = string:gsub(search_string, unicode)
         end
         return string
