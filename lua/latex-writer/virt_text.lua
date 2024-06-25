@@ -9,7 +9,7 @@ local function draw_pending(pending_item, config)
 
     local virt_text_lines = {}
     for _, line in ipairs(pending_item.texts) do
-        table.insert(virt_text_lines, {{text_before .. line, 'LatexWriter'}})
+        table.insert(virt_text_lines, {{line, 'LatexWriter'}})
     end
 
     local virtual_text_opts = {
@@ -49,21 +49,26 @@ return function (items, config)
         if pending_item.row == ltex.row then
 
             if #pending_item.texts == 3 and #lines == 1 then -- hard coded because most common case
-                local between = string.rep(" ", ltex.col_end - #pending_item.texts[2])
+                local between = string.rep(" ", pending_item.col - #pending_item.texts[2])
                 pending_item.texts[2] = pending_item.texts[2] .. between .. lines[1]
             else
                 for i, line in ipairs(lines) do
-                    local between = string.rep(" ", ltex.col - #pending_item.texts[i])
+                    local between = string.rep(" ", pending_item.col - #pending_item.texts[i])
                     pending_item.texts[i] = (pending_item.texts[i] or "") .. between .. line
                 end
             end
+
             for i=1,#pending_item.texts do
                 pending_item.texts[i] = pending_item.texts[i] .. string.rep(" ", ltex.col_end - #pending_item.texts[i])
             end
+            pending_item.col = ltex.col_end + #text_before
         -- draw pending item (exclusion for the first item is done in the draw_pending function)
         else
             draw_pending(pending_item, config)
-            for i=1,#lines do lines[i] = text_before .. string.rep(" ", ltex.col - #text_before) .. lines[i] end
+            for i=1,#lines do
+                lines[i] = text_before .. string.rep(" ", ltex.col - #text_before) .. lines[i]
+                lines[i] = lines[i] .. string.rep(" ", ltex.col_end - #lines[i])
+            end
             pending_item = {row = ltex.row, texts = lines, col = ltex.col_end}
         end
     end
