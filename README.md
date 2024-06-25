@@ -1,12 +1,14 @@
 
+Creation of the readme is in progress...
 
-Want to display latex code within a buffer? -> Use this plugin.
-
+# Example Use-Cases
 \[
     \int_1^\infty \varepsilon dx
 \]
 
-Sum over random variable \( \sum_{k=1}^n X(\omega_k) \). A random variable \(X: \Omega \to \mathbb R\\ \omega \mapsto X(\omega) \)
+Sum over random variable \( \sum_{k=1}^n X(\omega_k) \). A random variable \(X: \Omega \to \mathbb R\\ \omega \mapsto X(\omega) \). 
+
+The expected value \( \mathbb E [X] = \int_{x \in \mathbb R} x d\mathbb P_X\)
 
 # Requirements
 

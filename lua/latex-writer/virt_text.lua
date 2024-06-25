@@ -34,7 +34,6 @@ return function (items, config)
         if not vim.tbl_contains(used_texts, item.text) then
             used_texts[#used_texts + 1] = item.text
             ltex_rep[#used_texts] = item
-            for name, value in pairs(ltex_rep[#used_texts]) do print(name, value) end
         end
     end
 
@@ -49,19 +48,15 @@ return function (items, config)
         if pending_item.row == ltex.row then
 
             if #pending_item.texts == 3 and #lines == 1 then -- hard coded because most common case
-                local between = string.rep(" ", pending_item.col - #pending_item.texts[2])
-                pending_item.texts[2] = pending_item.texts[2] .. between .. lines[1]
+                local between = string.rep(" ", ltex.col - #pending_item.texts[2])
+                pending_item.texts[2] = pending_item.texts[2] .. between .. lines[1] .. string.rep(" ", ltex.col_end - #pending_item.texts[2])
             else
-                for i, line in ipairs(lines) do
-                    local between = string.rep(" ", pending_item.col - #pending_item.texts[i])
-                    pending_item.texts[i] = (pending_item.texts[i] or "") .. between .. line
+                for i, line in ipairs(pending_item.texts) do
+                    local between = string.rep(" ", ltex.col_end - #line)
+                    pending_item.texts[i] = line .. between .. (lines[i] or " ") .. string.rep(" ", ltex.col_end - #line)
                 end
             end
 
-            for i=1,#pending_item.texts do
-                pending_item.texts[i] = pending_item.texts[i] .. string.rep(" ", ltex.col_end - #pending_item.texts[i])
-            end
-            pending_item.col = ltex.col_end + #text_before
         -- draw pending item (exclusion for the first item is done in the draw_pending function)
         else
             draw_pending(pending_item, config)

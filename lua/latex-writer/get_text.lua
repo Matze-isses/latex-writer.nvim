@@ -10,7 +10,8 @@ local tex_regex_multiline = {
 
 local function text_cleanup(text)
     --text = string.gsub(text, "(%a*%s+)(%a+)", "%1{%2}")
-    text = string.gsub(text, "\\", "\\\\")
+    text = string.gsub(text, "\\\\", "\\\\\\\\")
+    if text[1] == " " then text = text:sub(2, #text) end
     --text = string.gsub(text, " ", "")
     return text
 end
