@@ -24,6 +24,16 @@ local greek_map = {
     chi        = "χ",
     psi        = "ψ",
     omega      = "ω",
+    Gamma      = "Γ",
+    Delta      = "Δ",
+    Theta      = "Θ",
+    Iota       = "ι",
+    Lambda     = "Λ",
+    Xi         = "Ξ",
+    Pi         = "Π",
+    Phi        = "Φ",
+    Psi        = "Ψ",
+    Omega      = "Ω",
 }
 
 return {

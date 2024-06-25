@@ -93,10 +93,12 @@ end
 
 
 return {
-    get_latex_text = function (text)
-        local proc = letter_parser(text)
+    get_latex_text = function (text, pearl_path)
+        local proc = text
         proc = font_style_parser(proc)
-        proc = shell_connection(letter_parser)
+        proc = letter_parser(proc)
+
+        proc = shell_connection(pearl_path, proc)
         proc = proc:gsub("\\", "")
         return proc
     end,
