@@ -11,7 +11,7 @@ local tex_regex_multiline = {
 local function text_cleanup(text)
     --text = string.gsub(text, "(%a*%s+)(%a+)", "%1{%2}")
     text = string.gsub(text, "\\", "\\\\")
-    text = string.gsub(text, " ", "")
+    --text = string.gsub(text, " ", "")
     return text
 end
 
@@ -55,7 +55,7 @@ local function search_in_buffer()
 
         for _, match in ipairs(matches) do
             local row = index
-            items[#items+1] = {text = text_cleanup(match.tex), row = row - 1, col = matches.col}
+            items[#items+1] = {text = text_cleanup(match.tex), row = row - 1, col = match.start_index, col_end = match.end_index}
         end
     end
 
@@ -69,7 +69,7 @@ local function search_in_buffer()
 
             if start_index then
                 local result = string.sub(text, start_index + pattern.length_start, end_index - pattern.length_start)
-                items[#items + 1] = {text = text_cleanup(result), row = line_nr - 1, col = 0}
+                items[#items + 1] = {text = text_cleanup(result), row = line_nr - 1, col = start_index, col_end = end_index}
                 text = ""
             end
         end
@@ -78,14 +78,5 @@ local function search_in_buffer()
 
     return items
 end
-
-local found_items = ""
-for _, item in ipairs(search_in_buffer()) do
-    found_items = found_items .. item.row .. "   " .. item.text .. " |- "
-end
--- local line_results = search_inline("\\[ \\int all \\] test \\(\\sum_{k=1}^n X(\\omega_k)\\) Would be the variable \\(X: \\Omega \\to \\mathbb R\\) ")
--- print(line_results[1].tex)
--- print(line_results[2].tex)
--- print(line_results[3].tex)
 
 return search_in_buffer

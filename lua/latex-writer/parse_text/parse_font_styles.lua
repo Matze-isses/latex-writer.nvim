@@ -62,12 +62,12 @@ local cal = {
 ---@param text string
 return function (text)
     for key, value in pairs(cal) do
-        local current_search = "\\mathcal" .. key
+        local current_search = "\\mathcal " .. key
         text = text:gsub(current_search, value)
     end
 
     for key, value in pairs(bb) do
-        local current_search = "\\mathbb" .. key
+        local current_search = "\\mathbb " .. key
         text = text:gsub(current_search, value)
     end
 

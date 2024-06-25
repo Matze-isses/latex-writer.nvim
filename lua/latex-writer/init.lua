@@ -1,4 +1,4 @@
-local get_latex_codes = require('latex-writer.get_text')
+local search_in_buffer = require('latex-writer.get_text')
 local display_virtual_text = require('latex-writer.virt_text')
 local parser = require('latex-writer.parse_text')
 LatexWriter = { }
@@ -42,7 +42,7 @@ LatexWriter = {
     end,
 
     update = function ()
-        local items = get_latex_codes()
+        local items = search_in_buffer()
         for i, item in ipairs(items) do
             items[i].text = parser.get_latex_text(item.text, LatexWriter.parser_path)
         end
