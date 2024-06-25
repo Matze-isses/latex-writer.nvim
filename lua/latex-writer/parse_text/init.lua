@@ -1,4 +1,5 @@
 local letter_parser = require('latex-writer.parse_text.parse_letters').parse_letters
+local font_style_parser = require('latex-writer.parse_text.parse_font_styles')
 
 
 local function shell_connection(path, command)
@@ -94,6 +95,7 @@ end
 return {
     get_latex_text = function (text)
         local proc = letter_parser(text)
+        proc = font_style_parser(proc)
         proc = shell_connection(letter_parser)
         proc = proc:gsub("\\", "")
         return proc
