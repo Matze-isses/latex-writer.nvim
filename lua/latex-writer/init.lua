@@ -19,7 +19,7 @@ LatexWriter = {
     parser_path = nil,
 
     ---@private
-    augroup = false,
+    augroup = nil,
 
     --- Table to set the configuration parameters
     config = {
@@ -36,14 +36,15 @@ LatexWriter = {
         },
 
         virt_text_params = {
-            string_before = string.rep(' ', 4)
+            string_before = string.rep(' ', 4),
+            mark_at_signcolumn = true
         },
     },
 
     verified_update = function ()
         if vim.tbl_contains(LatexWriter.config.apply_on_filetypes, vim.bo.filetype) then
             LatexWriter.update()
-            print("Written")
+            print("Written Latex Text")
         end
     end,
 
@@ -52,6 +53,7 @@ LatexWriter = {
         for i, item in ipairs(items) do
             items[i].text = parser.get_latex_text(item.text, LatexWriter.parser_path)
         end
+
         vim.api.nvim_buf_clear_namespace(0, -1, 0, -1)
         display_virtual_text(items, LatexWriter.config)
     end,
@@ -62,10 +64,13 @@ LatexWriter = {
 
     ---@private
     _toggle_automation = function()
-        if LatexWriter.augroup then
+        if LatexWriter.augroup ~= nil then
             vim.api.nvim_clear_autocmds({group = LatexWriter.augroup})
+            LatexWriter.augroup = nil
+            print("Automation Off")
         else
             LatexWriter._set_auto_cmds()
+            print("Automation On")
         end
     end,
 
@@ -73,37 +78,41 @@ LatexWriter = {
     _set_user_cmds = function ()
         vim.api.nvim_create_user_command('LatexWriterForce', function () LatexWriter.update() end, {nargs = 0})
         vim.api.nvim_create_user_command('LatexWriterStart', function () LatexWriter.verified_update() end, {nargs = 0})
-        vim.api.nvim_create_user_command('LatexWriterToggleAuto', function () LatexWriter.verified_update() end, {nargs = 0})
+        vim.api.nvim_create_user_command('LatexWriterToggleAuto', function () LatexWriter._toggle_automation() end, {nargs = 0})
         vim.api.nvim_create_user_command('LatexWriterRemove', function () LatexWriter.remove() end, {nargs = 0})
     end,
 
     ---@private
     _set_auto_cmds = function ()
-        LatexWriter.augroup = vim.api.nvim_create_augroup("LatexWriter", { clear = true })
-        vim.api.nvim_create_autocmd({"CursorHold"}, {
+        LatexWriter.augroup = vim.api.nvim_create_augroup("LatexWriter", { clear = false })
+        vim.api.nvim_create_autocmd({"CursorHold", "BufWritePost", "CursorHoldI"}, {
+            group=LatexWriter.augroup,
             callback = function ()
                 LatexWriter.verified_update()
+                print("Callback Called")
             end,
         })
     end,
 
     init = function (opts)
+        LatexWriter.setup(opts)
     end
 }
 
-function LatexWriter:setup(opts)
-    self = setmetatable(LatexWriter, {config = opts})
+function LatexWriter.setup(opts)
+    opts = opts or {}
+    LatexWriter = setmetatable(LatexWriter, {config = opts})
 
-    if self.config.autocmds == true then self._set_auto_cmds() end
-    if self.config.usercmds == true then self._set_user_cmds() end
+    if LatexWriter.config.autocmds == true then LatexWriter._set_auto_cmds() end
+    if LatexWriter.config.usercmds == true then LatexWriter._set_user_cmds() end
 
     -- There must be a better solution then this one
-    self.plugin_path, self.parser_path = get_plugin_path()
+    LatexWriter.plugin_path, LatexWriter.parser_path = get_plugin_path()
 
-    local hl = self.config.highlighting
+    local hl = LatexWriter.config.highlighting
     vim.cmd('highlight LatexWriter' .. ' guifg=' .. hl.fg .. ' guibg=' .. hl.bg .. ' gui=' .. hl.gui)
 
-    return self
+    return LatexWriter
 end
 
 
