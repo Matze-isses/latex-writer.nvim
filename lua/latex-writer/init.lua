@@ -72,7 +72,7 @@ LatexWriter = {
     ---@private
     _set_user_cmds = function ()
         vim.api.nvim_create_user_command('LatexWriterForce', function () LatexWriter.update() end, {nargs = 0})
-        vim.api.nvim_create_user_command('LatexWriterShow', function () LatexWriter.verified_update() end, {nargs = 0})
+        vim.api.nvim_create_user_command('LatexWriterStart', function () LatexWriter.verified_update() end, {nargs = 0})
         vim.api.nvim_create_user_command('LatexWriterToggleAuto', function () LatexWriter.verified_update() end, {nargs = 0})
         vim.api.nvim_create_user_command('LatexWriterRemove', function () LatexWriter.remove() end, {nargs = 0})
     end,
@@ -91,8 +91,8 @@ LatexWriter = {
     end
 }
 
-function LatexWriter.setup(opts)
-    local self = setmetatable(LatexWriter, {config = opts})
+function LatexWriter:setup(opts)
+    self = setmetatable(LatexWriter, {config = opts})
 
     if self.config.autocmds == true then self._set_auto_cmds() end
     if self.config.usercmds == true then self._set_user_cmds() end
@@ -105,7 +105,6 @@ function LatexWriter.setup(opts)
 
     return self
 end
-
 
 
 return LatexWriter

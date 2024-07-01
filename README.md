@@ -35,7 +35,7 @@ Plug 'glepnir/nerdicons.nvim', {'do': 'NerdIcons'}
 
 # Example Use-Cases
 \[
-    \int_1^\infty \varepsilon dx
+    \int_{1}^\infty \varepsilon dx
 \]
 
 Sum over random variable \( \sum_{k=1}^n X(\omega_k) \). A random variable \(X: \Omega \to \mathbb R\\ \omega \mapsto X(\omega) \). 
