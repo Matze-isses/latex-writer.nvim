@@ -15,7 +15,7 @@ As this is my first public neovim plugin the code can be improved heavily.
 ## Example import
 ```
 Plug 'glepnir/nerdicons.nvim', {'do': 'NerdIcons'}
-Plug 'matze-isses/latex-writer'
+Plug 'matze-isses/latex-writer.nvim'
 ```
 
     
