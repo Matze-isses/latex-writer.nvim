@@ -16,21 +16,23 @@ end
 LatexWriter = {
     plugin_path = get_plugin_path(),
     parser_path = nil,
+    augroup = false,
 
     config = {
-        debug = true,
+        debug = false,
+
         autocmds = false,
         usercmds = true,
         apply_on_filetypes = {'tex', 'markdown', 'lua'},
 
         highlighting = {
-            fg = '#cde33b',
-            bg = '#0e1120',
+            fg = '#e8ee30',
+            bg = 'NONE',
             gui = 'NONE'
         },
 
         virt_text_params = {
-            string_before = string.rep(' ', 8)
+            string_before = string.rep(' ', 4)
         },
     },
 
@@ -54,14 +56,26 @@ LatexWriter = {
         vim.api.nvim_buf_clear_namespace(0, -1, 0, -1)
     end,
 
+    ---@private
+    _toggle_automation = function()
+        if LatexWriter.augroup then
+            vim.api.nvim_clear_autocmds({group = LatexWriter.augroup})
+        else
+            LatexWriter._set_auto_cmds()
+        end
+    end,
+
+    ---@private
     _set_user_cmds = function ()
         vim.api.nvim_create_user_command('LatexWriterForce', function () LatexWriter.update() end, {nargs = 0})
-        vim.api.nvim_create_user_command('LatexWriterStart', function () LatexWriter.verified_update() end, {nargs = 0})
+        vim.api.nvim_create_user_command('LatexWriterShow', function () LatexWriter.verified_update() end, {nargs = 0})
+        vim.api.nvim_create_user_command('LatexWriterToggleAuto', function () LatexWriter.verified_update() end, {nargs = 0})
         vim.api.nvim_create_user_command('LatexWriterRemove', function () LatexWriter.remove() end, {nargs = 0})
     end,
 
+    ---@private
     _set_auto_cmds = function ()
-        local grp = vim.api.nvim_create_augroup("LatexWriter", { clear = true })
+        LatexWriter.augroup = vim.api.nvim_create_augroup("LatexWriter", { clear = true })
         vim.api.nvim_create_autocmd({"CursorHold"}, {
             callback = function ()
                 LatexWriter.verified_update()
