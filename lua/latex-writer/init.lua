@@ -85,7 +85,7 @@ LatexWriter = {
     ---@private
     _set_auto_cmds = function ()
         LatexWriter.augroup = vim.api.nvim_create_augroup("LatexWriter", { clear = false })
-        vim.api.nvim_create_autocmd({"CursorHold", "BufWritePost", "CursorHoldI"}, {
+        vim.api.nvim_create_autocmd({"TextChangedI", "BufWritePost"}, {
             group=LatexWriter.augroup,
             callback = function ()
                 LatexWriter.verified_update()

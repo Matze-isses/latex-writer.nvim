@@ -8,10 +8,13 @@ local function shell_connection(path, command)
     local output = vim.fn.system(command)
 
     if output == nil or output == '' then
-        print("No output from script or error occurred.")
-        print("Script path: " .. path)
-        print("Script CMD:")
-        error("Missing output of Script")
+        if LatexWriter.config.debug == true then
+            print("No output from script or error occurred.")
+            print("Script path: " .. path)
+            print("Script CMD:")
+        end
+
+        return {"\nInvalid Latex String!\n "}
     end
 
     return output
