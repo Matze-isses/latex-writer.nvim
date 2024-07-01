@@ -11,13 +11,17 @@ local function get_plugin_path()
     return latex_writer_path, latex_writer_path .. appended_string
 end
 
---- \(\sum_{i=1}^{n} i\)
-
 LatexWriter = {
+    ---@private
     plugin_path = get_plugin_path(),
+
+    ---@private
     parser_path = nil,
+
+    ---@private
     augroup = false,
 
+    --- Table to set the configuration parameters
     config = {
         debug = false,
 
@@ -102,8 +106,6 @@ function LatexWriter.setup(opts)
     return self
 end
 
-local test = LatexWriter.setup({})
---print(test.plugin_path, test.parser_path)
 
 
 return LatexWriter
