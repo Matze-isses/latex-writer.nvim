@@ -23,12 +23,19 @@ LatexWriter = {
 
     --- Table to set the configuration parameters
     config = {
+        --- prints the exit code if pearl script does not return anything
         debug = false,
 
+        --- currently not working! Same effect by using the usercommand: "LatexWriterToggleAuto"
         autocmds = false,
-        usercmds = true,
-        apply_on_filetypes = {'tex', 'markdown', 'lua'},
 
+        --- Determines if usercommands should be set.
+        usercmds = true,
+
+        --- Filetypes where this plugin can be applied
+        apply_on_filetypes = {'tex', 'markdown'},
+
+        --- highlighting of the generated virtual text
         highlighting = {
             fg = '#e8ee30',
             bg = 'NONE',
@@ -36,7 +43,10 @@ LatexWriter = {
         },
 
         virt_text_params = {
+            --- string placed before the latex formula
             string_before = string.rep(' ', 4),
+
+            --- Writes in the sign column where this plugin detects latex formulas.
             mark_at_signcolumn = true
         },
     },
