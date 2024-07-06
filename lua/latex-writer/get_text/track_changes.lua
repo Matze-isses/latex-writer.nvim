@@ -17,7 +17,7 @@ This is a test string.
 \]
 
 And other option is \( \Omega \)
-With\(\lambda\) old tex Format $\Lambda$ testing this \(\to\) \[ \Pi \] \( \pi \)
+With\(\lambda\) old tex Format testing this \(\to\) \[ \Pi \] \( \pi \)
 test
 \[
     \omega \Pi
@@ -51,19 +51,33 @@ local function search_in_buffer()
                 prevent_inf_loop = prevent_inf_loop + 1
 
                 local result = string.sub(text, start_index + pattern.length_start, end_index - pattern.length_start)
+                local start_column = #line - #text + start_index + pattern.length_start
 
-                local start_column = #line - text_length_before + start_index
-
+                --- Check if there is already an item detected in that row, 
+                --- if so the length of the text will be smaller by the items end index
                 if items[#items] and items[#items].row == line_nr then start_column = start_column + items[#items].col_end end
                 if start_column < 0 then start_column = 4 end
 
-                items[#items + 1] = {text = text_cleanup(result), row = line_nr - 1, col = start_column, col_end = text_length_before - end_index}
+                --- create item and shorten text to prevent multiple matches
+                items[#items + 1] = {text = text_cleanup(result), row = line_nr - 1, col = start_column, col_end = start_column + (end_index - start_index) - pattern.length_start}
                 text = string.sub(text, end_index + 1, #text)
 
+                --- generate new start and end index if there is no match the while loop will break
                 start_index, end_index = string.find(text, pattern.regex)
             end
         end
     end
+
+    --- Sort the resulting table
+    table.sort(items, function(a, b)
+        if not a and not b then return false end
+
+        if a.row == b.row then
+            return a.col < b.col
+        else
+            return a.row < b.row
+        end
+    end)
 
     return items
 end

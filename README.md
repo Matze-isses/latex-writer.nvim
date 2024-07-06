@@ -59,6 +59,8 @@ require("latex-writer").setup({
 \[
     \int_{1}^\infty \varepsilon dx
 \]
-Sum over random variable \( \sum_{k=1}^n X(\omega_k) \). A random variable \( X: \Omega \to \mathbb R\\ \omega \mapsto X(\omega) \). 
+
+Sum over random variable \( \sum_{k=1}^n X(\omega_k) \). A random variable \(X: \Omega \to \mathbb R\\ \omega \mapsto X(\omega)\). 
+
 The expected value \( \mathbb E [X] = \int_{x \in \mathbb R} x d\mathbb P_X\)
 

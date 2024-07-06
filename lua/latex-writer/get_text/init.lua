@@ -30,7 +30,7 @@ local function search_in_buffer()
                 prevent_inf_loop = prevent_inf_loop + 1
 
                 local result = string.sub(text, start_index + pattern.length_start, end_index - pattern.length_start)
-                local start_column = #line - text_length_before + start_index
+                local start_column = #line - #text + start_index
 
                 --- Check if there is already an item detected in that row, 
                 --- if so the length of the text will be smaller by the items end index
@@ -38,7 +38,7 @@ local function search_in_buffer()
                 if start_column < 0 then start_column = 4 end
 
                 --- create item and shorten text to prevent multiple matches
-                items[#items + 1] = {text = text_cleanup(result), row = line_nr - 1, col = start_column, col_end = text_length_before - end_index}
+                items[#items + 1] = {text = text_cleanup(result), row = line_nr - 1, col = start_column, col_end = start_column + (end_index - start_index)}
                 text = string.sub(text, end_index + 1, #text)
 
                 --- generate new start and end index if there is no match the while loop will break
@@ -49,7 +49,13 @@ local function search_in_buffer()
 
     --- Sort the resulting table
     table.sort(items, function(a, b)
-        return a.row < b.row
+        if not a and not b then return false end
+
+        if a.row == b.row then
+            return a.col < b.col
+        else
+            return a.row < b.row
+        end
     end)
 
     return items
