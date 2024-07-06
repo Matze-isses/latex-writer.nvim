@@ -1,10 +1,7 @@
 -- i hate regex especially in lua
-local tex_regex = {
-    {regex = "\\%((.-)\\%)", length_start = 2},
-    {regex = "\\%[(.-)\\%]", length_start = 2},
-}
 local tex_regex_multiline = {
-    {regex = '\\%[%s*(.*)%s*\\%]', length_start = 2},
+    {regex = '\\%[%s*(.-)%s*\\%]', length_start = 2},
+    {regex = '\\%(%s*(.-)%s*\\%)', length_start = 2},
 }
 
 local function text_cleanup(text)
@@ -13,65 +10,47 @@ local function text_cleanup(text)
     return text
 end
 
-
-
----Searches per line for latex elements
----@param inputString string
----@return table
-local function search_inline(inputString)
-    local matches = {}
-    local num_matches = #matches - 1
-    local current_search = {}
-    for i=1,#tex_regex do current_search[#current_search + 1] = inputString end
-
-    while num_matches ~= #matches do
-        num_matches = #matches
-
-        -- Iterate through all the patterns
-        for i, pattern in ipairs(tex_regex) do
-            local start_index, end_index = string.find(current_search[i], pattern.regex, 1)
-            if not start_index or not end_index then break end
-
-            local result = string.sub(current_search[i], start_index + pattern.length_start, end_index - pattern.length_start)
-            matches[#matches + 1] = {tex = result, start_index = start_index, end_index = end_index}
-            current_search[i] = string.sub(current_search[i], end_index - 2, #current_search[i])
-        end
-    end
-    return matches
-end
-
-
-
 local function search_in_buffer()
     local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
     local items = {}
-    local multiline_lines = {}
-
-    for index, line in ipairs(lines) do
-        local matches = search_inline(line)
-        if #matches == 0 then multiline_lines[#multiline_lines + 1] = {line_nr = index, line = line} end
-
-        for _, match in ipairs(matches) do
-            local row = index
-            items[#items+1] = {text = text_cleanup(match.tex), row = row - 1, col = match.start_index, col_end = match.end_index}
-        end
-    end
-
     local text = ""
-    for _, mult_lines in ipairs(multiline_lines) do
-        local line_nr, line = mult_lines.line_nr, mult_lines.line
-        text = text .. line
 
-        for _, pattern in ipairs(tex_regex_multiline) do
+
+    for _, pattern in ipairs(tex_regex_multiline) do
+        text = ""
+
+        for line_nr, line in ipairs(lines) do
+            text = text .. line
             local start_index, end_index = string.find(text, pattern.regex)
 
-            if start_index then
+            local prevent_inf_loop = 0
+            local text_length_before = #text
+
+            while start_index and prevent_inf_loop < 100 do
+                prevent_inf_loop = prevent_inf_loop + 1
+
                 local result = string.sub(text, start_index + pattern.length_start, end_index - pattern.length_start)
-                items[#items + 1] = {text = text_cleanup(result), row = line_nr - 1, col = start_index, col_end = end_index}
-                text = ""
+                local start_column = #line - text_length_before + start_index
+
+                --- Check if there is already an item detected in that row, 
+                --- if so the length of the text will be smaller by the items end index
+                if items[#items] and items[#items].row == line_nr then start_column = start_column + items[#items].col_end end
+                if start_column < 0 then start_column = 4 end
+
+                --- create item and shorten text to prevent multiple matches
+                items[#items + 1] = {text = text_cleanup(result), row = line_nr - 1, col = start_column, col_end = text_length_before - end_index}
+                text = string.sub(text, end_index + 1, #text)
+
+                --- generate new start and end index if there is no match the while loop will break
+                start_index, end_index = string.find(text, pattern.regex)
             end
         end
     end
+
+    --- Sort the resulting table
+    table.sort(items, function(a, b)
+        return a.row < b.row
+    end)
 
     return items
 end
