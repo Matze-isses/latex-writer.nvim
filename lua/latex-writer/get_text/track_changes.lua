@@ -1,4 +1,3 @@
-
 -- i hate regex especially in lua
 local tex_regex = {
     {regex = "\\%((.-)\\%)", length_start = 2},
@@ -6,16 +5,34 @@ local tex_regex = {
 }
 local tex_regex_multiline = {
     {regex = '\\%[%s*(.*)%s*\\%]', length_start = 2},
+    {regex = '\\%(%s*(.*)%s*\\%)', length_start = 2},
+    {regex = '%$%s*(.*)%s*%$', length_start = 1},
 }
 
+local test = [[
+
+This is a test string.
+
+\[ \sum \]
+
+\[
+    \int_0^n
+\]
+
+And other option is \( \Omega \)
+With old tex Format $\Lambda$
+test
+\[
+    \omega \Pi
+\]
+
+]]
+
 local function text_cleanup(text)
-    --text = string.gsub(text, "(%a*%s+)(%a+)", "%1{%2}")
     text = string.gsub(text, "\\\\", "\\\\\\\\")
     if text[1] == " " then text = text:sub(2, #text) end
-    --text = string.gsub(text, " ", "")
     return text
 end
-
 
 
 ---Searches per line for latex elements
@@ -48,36 +65,37 @@ end
 local function search_in_buffer()
     local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
     local items = {}
-    local multiline_lines = {}
-
-    for index, line in ipairs(lines) do
-        local matches = search_inline(line)
-        if #matches == 0 then multiline_lines[#multiline_lines + 1] = {line_nr = index, line = line} end
-
-        for _, match in ipairs(matches) do
-            local row = index
-            items[#items+1] = {text = text_cleanup(match.tex), row = row - 1, col = match.start_index, col_end = match.end_index}
-        end
-    end
-
     local text = ""
-    for _, mult_lines in ipairs(multiline_lines) do
-        local line_nr, line = mult_lines.line_nr, mult_lines.line
+    local overline = false
+
+    for line_nr, line in ipairs(lines) do
         text = text .. line
 
         for _, pattern in ipairs(tex_regex_multiline) do
             local start_index, end_index = string.find(text, pattern.regex)
 
+
             if start_index then
                 local result = string.sub(text, start_index + pattern.length_start, end_index - pattern.length_start)
-                items[#items + 1] = {text = text_cleanup(result), row = line_nr - 1, col = start_index, col_end = end_index}
+
+                local start_column = #text - start_index
+                print(start_index, end_index)
+                if #lines[line_nr] < start_index then
+                    start_column = 4
+                end
+
+                items[#items + 1] = {text = text_cleanup(result), row = line_nr - 1, col = start_column, col_end = end_index}
                 text = ""
             end
         end
     end
-    text = text:gsub(" ", " ")
 
     return items
 end
 
-return search_in_buffer
+local items = search_in_buffer()
+
+for key, value in pairs(items) do
+    print("Key: " .. key, "Text: " .. value.text, "Row: " .. value.row, "ColStart: " .. value.col, "ColEnd: " .. value.col_end)
+end
+
