@@ -46,14 +46,17 @@ return function (items, config)
 
         -- if the last and the current item are in the same row draw them after each other
         if pending_item.row == ltex.row then
+            local max_line_length = 0
+            for _, line in pairs(pending_item.texts) do max_line_length = math.max(max_line_length, #line) end
+            for i, line in ipairs(pending_item.texts) do pending_item.texts[i] = line .. string.rep(" ", max_line_length - #line) end
 
             if #pending_item.texts == 3 and #lines == 1 then -- hard coded because most common case
                 local between = string.rep(" ", ltex.col - #pending_item.texts[2])
                 pending_item.texts[2] = pending_item.texts[2] .. between .. lines[1] .. string.rep(" ", ltex.col_end - #pending_item.texts[2])
             else
                 for i, line in ipairs(pending_item.texts) do
-                    local between = string.rep(" ", ltex.col_end - #line)
-                    pending_item.texts[i] = line .. between .. (lines[i] or " ") .. string.rep(" ", ltex.col_end - #line)
+                    local between = string.rep(" ", ltex.col - #line)
+                    pending_item.texts[i] = line .. between .. (lines[i] or "") .. string.rep(" ", ltex.col_end - #pending_item.texts[i])
                 end
             end
 
@@ -62,8 +65,13 @@ return function (items, config)
             draw_pending(pending_item, config)
             for i=1,#lines do
                 lines[i] = text_before .. string.rep(" ", ltex.col - #text_before) .. lines[i]
-                lines[i] = lines[i] .. string.rep(" ", ltex.col_end - #lines[i])
+                if i == 1 then
+                    lines[i] = lines[i] .. string.rep(" ", ltex.col_end - #lines[i] + (i - 1))
+                else
+                    lines[i] = lines[i] .. string.rep(" ", ltex.col_end - #lines[i] + (i - 1) + 2)
+                end
             end
+
             pending_item = {row = ltex.row, texts = lines, col = ltex.col_end}
         end
     end
