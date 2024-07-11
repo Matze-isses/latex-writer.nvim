@@ -62,5 +62,5 @@ require("latex-writer").setup({
 
 Sum over random variable \( \sum_{k=1}^n X(\omega_k) \). A random variable \(X: \left[ \Omega \to \mathbb R^d \right]\\ \omega \mapsto X(\omega)\). 
 
-The expected value \( \mathbb E [X] = \int_{x \in \mathbb R} x d\mathbb P_X\)
+The expected value \( \mathbb E [X] = \int_{x \in \mathbb R} x d\mathbb P_X\) testing = \[\Omega\] for what \(\Phi_{i=1}^d\)
 

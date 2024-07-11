@@ -43,21 +43,16 @@ return function (items, config)
         text = ltex.text
         local lines = {}
         for line in string.gmatch(text, "([^\n]+)\n") do lines[#lines+1] = line end
+        while #lines < 3 do lines[#lines+1] = "" end
 
         -- if the last and the current item are in the same row draw them after each other
         if pending_item.row == ltex.row then
             local max_line_length = 0
             for _, line in pairs(pending_item.texts) do max_line_length = math.max(max_line_length, #line) end
-            for i, line in ipairs(pending_item.texts) do pending_item.texts[i] = line .. string.rep(" ", max_line_length - #line) end
 
-            if #pending_item.texts == 3 and #lines == 1 then -- hard coded because most common case
-                local between = string.rep(" ", ltex.col - #pending_item.texts[2])
-                pending_item.texts[2] = pending_item.texts[2] .. between .. lines[1] .. string.rep(" ", ltex.col_end - #pending_item.texts[2])
-            else
-                for i, line in ipairs(pending_item.texts) do
-                    local between = string.rep(" ", ltex.col - #line)
-                    pending_item.texts[i] = line .. between .. (lines[i] or "") .. string.rep(" ", ltex.col_end - #pending_item.texts[i])
-                end
+            for i, line in ipairs(pending_item.texts) do
+                local between = string.rep(".", ltex.col - max_line_length + 4)
+                pending_item.texts[i] = line .. between .. (lines[i] or "") .. string.rep("-", ltex.col_end - #line - ltex.col)
             end
 
         -- draw pending item (exclusion for the first item is done in the draw_pending function)
